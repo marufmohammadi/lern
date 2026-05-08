@@ -1,0 +1,13 @@
+{
+  "name": "poshub",
+  "version": "1.0.0",
+  "description": "Car Paint Materials Inventory & POS System",
+  "scripts": {
+    "dev": "npx serve . --listen 3000 --no-clipboard",
+    "start": "npx serve . --listen 3000"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

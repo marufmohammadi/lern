@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PosHub — Sign In</title>
+  <meta name="description" content="Sign in to PosHub Inventory Management System">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:       #2d8c4e;
+      --green-dark:  #1a5c32;
+      --green-light: #4ade80;
+      --yellow:      #f59e0b;
+      --red:         #ef4444;
+      --text:        #1e293b;
+      --text-mid:    #64748b;
+      --text-light:  #94a3b8;
+      --border:      #e2e8f0;
+      --bg:          #f1f5f9;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      background: #0d1f14;
+      overflow: hidden;
+    }
+
+    /* ── Left Panel ── */
+    .left-panel {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 40px;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(45,140,78,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(74,222,128,0.15) 0%, transparent 50%),
+        linear-gradient(135deg, #0d1f14 0%, #102818 50%, #0a1a0f 100%);
+    }
+
+    /* Decorative circles */
+    .deco-circle {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(74,222,128,0.1);
+      pointer-events: none;
+    }
+    .deco-circle:nth-child(1) { width: 500px; height: 500px; top: -100px; left: -100px; }
+    .deco-circle:nth-child(2) { width: 300px; height: 300px; bottom: 50px; right: -80px; border-color: rgba(245,158,11,0.1); }
+    .deco-circle:nth-child(3) { width: 180px; height: 180px; top: 40%; left: 30%; }
+
+    .left-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 440px;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 48px;
+    }
+    .brand-icon {
+      width: 54px; height: 54px;
+      background: linear-gradient(135deg, var(--green), var(--green-light));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #fff;
+      box-shadow: 0 8px 24px rgba(45,140,78,0.4);
+    }
+    .brand-name {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .left-headline {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+    .left-headline span { color: var(--green-light); }
+
+    .left-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    /* Feature Pills */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 12px 16px;
+      backdrop-filter: blur(4px);
+    }
+    .feature-icon {
+      width: 34px; height: 34px;
+      background: rgba(45,140,78,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--green-light);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .feature-text { color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 500; }
+
+    /* ── Right Panel (Login Form) ── */
+    .right-panel {
+      width: 480px;
+      flex-shrink: 0;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 50px 48px;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 900px) {
+      .left-panel { display: none; }
+      .right-panel { width: 100%; padding: 40px 28px; }
+    }
+
+    .form-header { margin-bottom: 36px; }
+    .form-tag {
+      display: inline-block;
+      background: #dcfce7;
+      color: var(--green-dark);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .form-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-sub { font-size: 14px; color: var(--text-mid); }
+
+    /* Form Fields */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 7px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap i {
+      position: absolute;
+      left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-light);
+      font-size: 14px;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .input-wrap input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: #f8fafc;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .input-wrap input:focus {
+      border-color: var(--green);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(45,140,78,0.1);
+    }
+    .input-wrap input:focus + i,
+    .input-wrap:focus-within i { color: var(--green); }
+    .input-wrap .toggle-pw {
+      position: absolute;
+      right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--text-light); cursor: pointer; font-size: 14px;
+      padding: 4px;
+      pointer-events: all;
+      transition: color 0.2s;
+    }
+    .input-wrap .toggle-pw:hover { color: var(--green); }
+
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+    .remember-me {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-mid); cursor: pointer;
+    }
+    .remember-me input[type="checkbox"] { accent-color: var(--green); width: 15px; height: 15px; }
+    .forgot-link {
+      font-size: 13px;
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* Alert */
+    .alert {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      align-items: center;
+      gap: 9px;
+    }
+    .alert.error  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; display: flex; }
+    .alert.success { background: #dcfce7; color: #166534; border: 1px solid #86efac; display: flex; }
+
+    /* Submit Button */
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--green), #38a169);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 14px rgba(45,140,78,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-login:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(45,140,78,0.45);
+    }
+    .btn-login:active:not(:disabled) { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 22px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+    .divider span { font-size: 12px; color: var(--text-light); white-space: nowrap; }
+
+    .form-footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    /* Branch badge shown after login */
+    .branch-badge {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      color: var(--green-dark);
+      font-weight: 500;
+    }
+    .branch-badge i { color: var(--green); }
+
+    /* Input error state */
+    .input-wrap.has-error input { border-color: var(--red); }
+    .input-wrap.has-error i { color: var(--red); }
+    .field-error { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
+    .field-error.show { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Left Decorative Panel -->
+  <div class="left-panel">
+    <div class="deco-circle"></div>
+    <div class="deco-circle"></div>
+    <div class="deco-circle"></div>
+
+    <div class="left-content">
+      <div class="brand-logo">
+        <div class="brand-icon"><i class="fas fa-store"></i></div>
+        <span class="brand-name">PosHub</span>
+      </div>
+
+      <h1 class="left-headline">
+        Manage Your <span>Inventory</span><br>Across All Branches
+      </h1>
+      <p class="left-sub">
+        A complete ERP & POS system built for car paint material businesses.
+        Real-time stock, multi-branch, full financial control.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon"><i class="fas fa-code-branch"></i></div>
+          <span class="feature-text">Multi-branch inventory management</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i class="fas fa-cash-register"></i></div>
+          <span class="feature-text">Integrated Point of Sale (POS)</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
+          <span class="feature-text">18+ reports & financial analytics</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+          <span class="feature-text">Role-based access control per branch</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Login Panel -->
+  <div class="right-panel">
+    <div class="form-header">
+      <span class="form-tag">Secure Login</span>
+      <h2 class="form-title">Welcome back 👋</h2>
+      <p class="form-sub">Sign in to your PosHub account to continue.</p>
+    </div>
+
+    <!-- Alert box -->
+    <div class="alert" id="alertBox">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="alertMsg">Invalid credentials</span>
+    </div>
+
+    <!-- Branch badge (shown after auth) -->
+    <div class="branch-badge" id="branchBadge">
+      <i class="fas fa-code-branch"></i>
+      <span id="branchName">Loading branch…</span>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <!-- Email -->
+      <div class="field">
+        <label for="email">Email Address</label>
+        <div class="input-wrap" id="emailWrap">
+          <i class="fas fa-envelope"></i>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="admin@company.com"
+            autocomplete="email"
+            required
+          >
+        </div>
+        <p class="field-error" id="emailError">Please enter a valid email address.</p>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap" id="passwordWrap">
+          <i class="fas fa-lock"></i>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+          >
+          <button type="button" class="toggle-pw" id="togglePw" title="Show/hide password">
+            <i class="fas fa-eye" id="togglePwIcon"></i>
+          </button>
+        </div>
+        <p class="field-error" id="passwordError">Password is required.</p>
+      </div>
+
+      <!-- Remember / Forgot -->
+      <div class="field-row">
+        <label class="remember-me">
+          <input type="checkbox" id="rememberMe"> Remember me
+        </label>
+        <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span class="spinner" id="spinner"></span>
+        <i class="fas fa-sign-in-alt" id="loginIcon"></i>
+        <span id="loginBtnText">Sign In</span>
+      </button>
+    </form>
+
+    <div class="form-footer">
+      <p>© 2024 PosHub. All rights reserved.</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script>
+    // ── Redirect if already logged in ──────────────────────
+    (async () => {
+      const session = await Auth.getSession();
+      if (session) window.location.href = 'index.html';
+    })();
+
+    // ── Toggle Password Visibility ─────────────────────────
+    const togglePw   = document.getElementById('togglePw');
+    const pwInput    = document.getElementById('password');
+    const toggleIcon = document.getElementById('togglePwIcon');
+
+    togglePw.addEventListener('click', () => {
+      const isText = pwInput.type === 'text';
+      pwInput.type = isText ? 'password' : 'text';
+      toggleIcon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+
+    // ── Field validation helpers ───────────────────────────
+    function showFieldError(wrapId, errId) {
+      document.getElementById(wrapId).classList.add('has-error');
+      document.getElementById(errId).classList.add('show');
+    }
+    function clearFieldError(wrapId, errId) {
+      document.getElementById(wrapId).classList.remove('has-error');
+      document.getElementById(errId).classList.remove('show');
+    }
+    function showAlert(msg, type = 'error') {
+      const box = document.getElementById('alertBox');
+      box.className = 'alert ' + type;
+      document.getElementById('alertMsg').textContent = msg;
+    }
+    function hideAlert() {
+      document.getElementById('alertBox').className = 'alert';
+    }
+
+    // Clear errors on input
+    document.getElementById('email').addEventListener('input', () => clearFieldError('emailWrap','emailError'));
+    document.getElementById('password').addEventListener('input', () => clearFieldError('passwordWrap','passwordError'));
+
+    // ── Login Form Submit ──────────────────────────────────
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlert();
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      let valid = true;
+
+      // Validate email
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showFieldError('emailWrap', 'emailError');
+        valid = false;
+      }
+      // Validate password
+      if (!password) {
+        showFieldError('passwordWrap', 'passwordError');
+        valid = false;
+      }
+      if (!valid) return;
+
+      // Set loading state
+      const btn     = document.getElementById('loginBtn');
+      const spinner = document.getElementById('spinner');
+      const icon    = document.getElementById('loginIcon');
+      const btnText = document.getElementById('loginBtnText');
+      btn.disabled  = true;
+      spinner.style.display = 'block';
+      icon.style.display    = 'none';
+      btnText.textContent   = 'Signing in…';
+
+      try {
+        const { user } = await Auth.signIn(email, password);
+
+        // Fetch profile & branch
+        const profile = await Auth.getProfile();
+
+        if (!profile) {
+          showAlert('Account setup incomplete. Please contact your administrator.');
+          return;
+        }
+        if (!profile.is_active) {
+          await db.auth.signOut();
+          showAlert('Your account has been deactivated. Contact your administrator.');
+          return;
+        }
+
+        // Cache in localStorage
+        localStorage.setItem('poshub_profile', JSON.stringify(profile));
+        localStorage.setItem('poshub_branch',  JSON.stringify(profile.branch));
+
+        // Show branch badge briefly
+        const badge = document.getElementById('branchBadge');
+        badge.style.display = 'flex';
+        document.getElementById('branchName').textContent =
+          `Branch: ${profile.branch?.name || 'Main'} — Role: ${profile.role}`;
+
+        btnText.textContent = 'Redirecting…';
+
+        // Remember me
+        if (document.getElementById('rememberMe').checked) {
+          localStorage.setItem('poshub_remember', email);
+        } else {
+          localStorage.removeItem('poshub_remember');
+        }
+
+        setTimeout(() => { window.location.href = 'index.html'; }, 800);
+
+      } catch (err) {
+        const msg = err.message || 'Login failed';
+        if (msg.toLowerCase().includes('invalid')) {
+          showAlert('Invalid email or password. Please try again.');
+        } else if (msg.toLowerCase().includes('email not confirmed')) {
+          showAlert('Please confirm your email address first.');
+        } else {
+          showAlert(msg);
+        }
+      } finally {
+        if (!window.location.href.includes('index')) {
+          btn.disabled = false;
+          spinner.style.display = 'none';
+          icon.style.display    = 'inline';
+          btnText.textContent   = 'Sign In';
+        }
+      }
+    });
+
+    // ── Pre-fill remembered email ──────────────────────────
+    const remembered = localStorage.getItem('poshub_remember');
+    if (remembered) {
+      document.getElementById('email').value = remembered;
+      document.getElementById('rememberMe').checked = true;
+    }
+  </script>
+</body>
+</html>

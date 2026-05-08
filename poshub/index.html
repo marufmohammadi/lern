@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PosHub - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fas fa-store"></i></div>
+      <span class="logo-text">PosHub</span>
+    </div>
+    <nav class="sidebar-nav">
+
+      <!-- Dashboard -->
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <i class="fas fa-th-large"></i><span>Dashboard</span>
+      </a>
+
+      <!-- User Management -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-user-shield"></i><span>User Management</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="users-list"><i class="fas fa-users"></i>Manage Users</a>
+          <a href="#" class="nav-sub-item" data-page="roles"><i class="fas fa-lock"></i>Roles & Permissions</a>
+          <a href="#" class="nav-sub-item" data-page="commission-agents"><i class="fas fa-user-tie"></i>Commission Agents</a>
+        </div>
+      </div>
+
+      <!-- Contacts -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-address-book"></i><span>Contacts</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="suppliers"><i class="fas fa-truck-loading"></i>Suppliers</a>
+          <a href="#" class="nav-sub-item" data-page="customers"><i class="fas fa-user-friends"></i>Customers</a>
+          <a href="#" class="nav-sub-item" data-page="customer-groups"><i class="fas fa-layer-group"></i>Customer Groups</a>
+          <a href="#" class="nav-sub-item" data-page="contacts-import"><i class="fas fa-file-import"></i>Bulk Import</a>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-box-open"></i><span>Products</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="products-list"><i class="fas fa-list"></i>List / Add Products</a>
+          <a href="#" class="nav-sub-item" data-page="price-updates"><i class="fas fa-tags"></i>Price Updates</a>
+          <a href="#" class="nav-sub-item" data-page="label-printing"><i class="fas fa-barcode"></i>Label / Barcode Print</a>
+          <a href="#" class="nav-sub-item" data-page="variations"><i class="fas fa-palette"></i>Variations</a>
+          <a href="#" class="nav-sub-item" data-page="opening-stock"><i class="fas fa-warehouse"></i>Opening Stock</a>
+          <a href="#" class="nav-sub-item" data-page="units"><i class="fas fa-ruler"></i>Units</a>
+          <a href="#" class="nav-sub-item" data-page="categories"><i class="fas fa-sitemap"></i>Categories</a>
+          <a href="#" class="nav-sub-item" data-page="brands"><i class="fas fa-trademark"></i>Brands</a>
+          <a href="#" class="nav-sub-item" data-page="warranties"><i class="fas fa-shield-alt"></i>Warranties</a>
+        </div>
+      </div>
+
+      <!-- Purchases -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-shopping-basket"></i><span>Purchases</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="purchase-requisitions"><i class="fas fa-clipboard-list"></i>Requisitions</a>
+          <a href="#" class="nav-sub-item" data-page="purchase-orders"><i class="fas fa-file-alt"></i>Purchase Orders</a>
+          <a href="#" class="nav-sub-item" data-page="purchases-list"><i class="fas fa-list-alt"></i>List / Add Purchases</a>
+          <a href="#" class="nav-sub-item" data-page="purchase-returns"><i class="fas fa-undo-alt"></i>Purchase Returns</a>
+        </div>
+      </div>
+
+      <!-- Sell / Sales -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-cash-register"></i><span>Sell</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="pos"><i class="fas fa-desktop"></i>POS</a>
+          <a href="#" class="nav-sub-item" data-page="quotations"><i class="fas fa-file-invoice"></i>Quotations</a>
+          <a href="#" class="nav-sub-item" data-page="drafts"><i class="fas fa-pencil-alt"></i>Drafts</a>
+          <a href="#" class="nav-sub-item" data-page="shipments"><i class="fas fa-shipping-fast"></i>Shipments</a>
+          <a href="#" class="nav-sub-item" data-page="discounts"><i class="fas fa-percent"></i>Discounts</a>
+          <a href="#" class="nav-sub-item" data-page="sales-returns"><i class="fas fa-exchange-alt"></i>Sales Returns</a>
+          <a href="#" class="nav-sub-item" data-page="sales-import"><i class="fas fa-file-import"></i>Bulk Import</a>
+        </div>
+      </div>
+
+      <!-- Stock Control -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-cubes"></i><span>Stock Control</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="stock-transfers"><i class="fas fa-random"></i>Stock Transfers</a>
+          <a href="#" class="nav-sub-item" data-page="stock-adjustments"><i class="fas fa-sliders-h"></i>Stock Adjustments</a>
+        </div>
+      </div>
+
+      <!-- Finance & Expenses -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-coins"></i><span>Finance & Expenses</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="expenses"><i class="fas fa-receipt"></i>Expense Tracking</a>
+          <a href="#" class="nav-sub-item" data-page="expense-categories"><i class="fas fa-tags"></i>Expense Categories</a>
+          <a href="#" class="nav-sub-item" data-page="payment-accounts"><i class="fas fa-university"></i>Payment Accounts</a>
+          <a href="#" class="nav-sub-item" data-page="balance-sheet"><i class="fas fa-balance-scale"></i>Balance Sheet</a>
+          <a href="#" class="nav-sub-item" data-page="cash-flow"><i class="fas fa-water"></i>Cash Flow</a>
+          <a href="#" class="nav-sub-item" data-page="trial-balance"><i class="fas fa-calculator"></i>Trial Balance</a>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-chart-pie"></i><span>Reports</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="report-profit-loss"><i class="fas fa-chart-line"></i>Profit & Loss</a>
+          <a href="#" class="nav-sub-item" data-page="report-tax"><i class="fas fa-file-invoice-dollar"></i>Tax Report</a>
+          <a href="#" class="nav-sub-item" data-page="report-trending"><i class="fas fa-fire"></i>Trending Products</a>
+          <a href="#" class="nav-sub-item" data-page="report-stock"><i class="fas fa-boxes"></i>Stock Report</a>
+          <a href="#" class="nav-sub-item" data-page="report-sales"><i class="fas fa-shopping-cart"></i>Sales Report</a>
+          <a href="#" class="nav-sub-item" data-page="report-purchase"><i class="fas fa-truck"></i>Purchase Report</a>
+          <a href="#" class="nav-sub-item" data-page="report-activity"><i class="fas fa-history"></i>Activity Logs</a>
+          <a href="#" class="nav-sub-item" data-page="report-customer"><i class="fas fa-user-chart"></i>Customer Reports</a>
+          <a href="#" class="nav-sub-item" data-page="report-supplier"><i class="fas fa-handshake"></i>Supplier Reports</a>
+          <a href="#" class="nav-sub-item" data-page="report-expense"><i class="fas fa-money-check-alt"></i>Expense Report</a>
+        </div>
+      </div>
+
+      <!-- Communication -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-bell"></i><span>Communication</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="notif-email"><i class="fas fa-envelope"></i>Email Templates</a>
+          <a href="#" class="nav-sub-item" data-page="notif-sms"><i class="fas fa-sms"></i>SMS Templates</a>
+          <a href="#" class="nav-sub-item" data-page="notif-whatsapp"><i class="fab fa-whatsapp"></i>WhatsApp Templates</a>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)">
+          <div class="nav-group-left">
+            <i class="fas fa-cog"></i><span>Settings</span>
+          </div>
+          <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+        <div class="nav-sub">
+          <a href="#" class="nav-sub-item" data-page="business-settings"><i class="fas fa-building"></i>Business Settings</a>
+          <a href="#" class="nav-sub-item" data-page="tax-rates"><i class="fas fa-percent"></i>Tax Rates</a>
+          <a href="#" class="nav-sub-item" data-page="system-settings"><i class="fas fa-sliders-h"></i>System Preferences</a>
+        </div>
+      </div>
+
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" class="nav-item" id="logoutBtn" onclick="Auth.signOut();return false;">
+        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <!-- Top Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+          <div class="branch-pill" id="branchPill"><i class="fas fa-code-branch"></i> <span id="branchLabel">Loading…</span></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn"><i class="fas fa-search"></i></button>
+        <button class="topbar-btn"><i class="fas fa-bell"></i><span class="badge">3</span></button>
+        <button class="topbar-btn"><i class="fas fa-envelope"></i></button>
+        <button class="topbar-btn"><i class="fas fa-th"></i></button>
+        <div class="topbar-user" id="topbarUser">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-meta">
+            <span class="user-name" id="userName">Admin</span>
+            <span class="user-role" id="userRole">Loading…</span>
+          </div>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Body -->
+    <main class="dashboard-body">
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="stat-info">
+            <p class="stat-label">Total Revenue</p>
+            <h3 class="stat-value">৳ 1,427.00</h3>
+            <p class="stat-sub"><i class="fas fa-arrow-up"></i> ৳ 6.00 This Month</p>
+          </div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+          <div class="stat-info">
+            <p class="stat-label">Total Purchase</p>
+            <h3 class="stat-value">৳ 1,007.00</h3>
+            <p class="stat-sub"><i class="fas fa-arrow-up"></i> ৳ 1.00 This Month</p>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="stat-info">
+            <p class="stat-label">Profit / Loss</p>
+            <h3 class="stat-value">৳ 5.00</h3>
+            <p class="stat-sub"><i class="fas fa-arrow-up"></i> ৳ 5.00</p>
+          </div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+          <div class="stat-info">
+            <p class="stat-label">Total Expense</p>
+            <h3 class="stat-value">৳ 1.00</h3>
+            <p class="stat-sub"><i class="fas fa-minus"></i> ৳ 0.00</p>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+          <div class="stat-info">
+            <p class="stat-label">Today's Revenue</p>
+            <h3 class="stat-value">৳ 0.00</h3>
+            <p class="stat-sub"><i class="fas fa-calendar"></i> Today</p>
+          </div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+          <div class="stat-info">
+            <p class="stat-label">Today's Purchase</p>
+            <h3 class="stat-value">৳ 1.00</h3>
+            <p class="stat-sub"><i class="fas fa-calendar"></i> Today</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h2 class="card-title">Sales Limit Chart</h2>
+            <button class="card-menu"><i class="fas fa-ellipsis-v"></i></button>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot green"></span>Sales Amount</span>
+            <span class="legend-item"><span class="legend-dot yellow"></span>Purchase Amount</span>
+            <span class="legend-item"><span class="legend-dot orange"></span>Profit</span>
+            <span class="legend-item"><span class="legend-dot red"></span>Expense</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="salesLimitChart"></canvas>
+          </div>
+        </div>
+        <div class="card chart-card">
+          <div class="card-header">
+            <h2 class="card-title">Sales Share by Payment Method</h2>
+            <button class="card-menu"><i class="fas fa-ellipsis-v"></i></button>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot green"></span>Cash</span>
+            <span class="legend-item"><span class="legend-dot yellow"></span>Card</span>
+            <span class="legend-item"><span class="legend-dot orange"></span>Mobile Banking</span>
+            <span class="legend-item"><span class="legend-dot red"></span>Bank Transfer</span>
+            <span class="legend-item"><span class="legend-dot blue"></span>Credit</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="paymentChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Purchase Right Now & Stats Row -->
+      <div class="two-col-row">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <p class="card-label">Admin Right Now</p>
+              <h3 class="mini-stat-val">৳ 1,427.00</h3>
+            </div>
+            <div class="mini-stat-right">
+              <p class="card-label">Last</p>
+              <h3 class="mini-stat-val">Today</h3>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Supplier</th><th>Amount (৳)</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ABC Traders</td><td>250.00</td><td><span class="badge-status green">Paid</span></td></tr>
+              <tr><td>XYZ Corp</td><td>180.00</td><td><span class="badge-status yellow">Pending</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <p class="card-label">7% Limit Sold</p>
+              <h3 class="mini-stat-val">৳ 0.00</h3>
+            </div>
+            <div class="mini-stat-right">
+              <p class="card-label">Due</p>
+              <h3 class="mini-stat-val">৳ 0.00 <span class="badge-status green">View Statement</span></h3>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Supplier</th><th>Statement</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Metro Supply</td><td>View</td><td><span class="badge-status green">Active</span></td></tr>
+              <tr><td>Local Vendor</td><td>View</td><td><span class="badge-status yellow">Review</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Product Stock Alert -->
+      <div class="card full-card">
+        <div class="card-header">
+          <h2 class="card-title">Product Stock Alert</h2>
+          <div class="card-tabs">
+            <button class="tab active">All Products</button>
+            <button class="tab">Out of Stock</button>
+            <button class="tab">Low Stock (Qty)</button>
+            <button class="tab">Low Stock (Days)</button>
+            <button class="tab">Overstock</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Product</th><th>Brand</th><th>Category</th><th>Stock</th><th>Reorder</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Apple Watch Series 9 45mm GPS</td><td>Apple</td><td>Electronics</td><td>15</td><td>20</td><td><span class="badge-status yellow">Low</span></td></tr>
+              <tr><td>Smart LED (17-17 x 1-11 x 6-6-0)</td><td>—</td><td>Lighting</td><td>5</td><td>10</td><td><span class="badge-status red">Critical</span></td></tr>
+              <tr><td>Apple iPad 10th Generation</td><td>Apple</td><td>Tablets</td><td>8</td><td>15</td><td><span class="badge-status yellow">Low</span></td></tr>
+              <tr><td>Samsung Galaxy S24 Ultra 256GB</td><td>Samsung</td><td>Mobile</td><td>12</td><td>20</td><td><span class="badge-status yellow">Low</span></td></tr>
+              <tr><td>MacBook Pro M3 14" 512GB</td><td>Apple</td><td>Laptops</td><td>4</td><td>10</td><td><span class="badge-status red">Critical</span></td></tr>
+              <tr><td>Logitech MX Master 3S</td><td>Logitech</td><td>Accessories</td><td>25</td><td>30</td><td><span class="badge-status yellow">Low</span></td></tr>
+              <tr><td>Dell XPS 15 9530 i9 32GB</td><td>Dell</td><td>Laptops</td><td>3</td><td>8</td><td><span class="badge-status red">Critical</span></td></tr>
+              <tr><td>Sony WH-1000XM5 Headphones</td><td>Sony</td><td>Audio</td><td>18</td><td>25</td><td><span class="badge-status yellow">Low</span></td></tr>
+              <tr><td>Google Pixel 8 Pro 256GB</td><td>Google</td><td>Mobile</td><td>7</td><td>15</td><td><span class="badge-status yellow">Low</span></td></tr>
+              <tr><td>OnePlus 12 256GB</td><td>OnePlus</td><td>Mobile</td><td>0</td><td>10</td><td><span class="badge-status red">Out of Stock</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span>Showing 1 to 10 of 10 entries</span>
+        </div>
+      </div>
+
+      <!-- Sales Order -->
+      <div class="card full-card">
+        <div class="card-header">
+          <h2 class="card-title">Sales Order</h2>
+          <div class="card-actions">
+            <button class="btn-outline">All Orders</button>
+            <button class="btn-outline">Pending</button>
+            <button class="btn-outline active-btn">Completed</button>
+            <button class="btn-outline">Cancelled</button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>From</label>
+            <input type="date" class="filter-input" value="2024-01-01">
+          </div>
+          <div class="filter-group">
+            <label>To</label>
+            <input type="date" class="filter-input" value="2024-12-31">
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Action</th><th>Date ↕</th><th>Invoice No ↕</th><th>Customer</th><th>Grand Total</th><th>Paid Amount</th><th>Status</th><th>Report</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><button class="icon-btn"><i class="fas fa-eye"></i></button></td><td>2024-01-15</td><td>INV-0001</td><td>Walk-in Customer</td><td>৳ 250.00</td><td>৳ 250.00</td><td><span class="badge-status green">Paid</span></td><td><button class="icon-btn"><i class="fas fa-print"></i></button></td></tr>
+              <tr><td><button class="icon-btn"><i class="fas fa-eye"></i></button></td><td>2024-01-18</td><td>INV-0002</td><td>John Doe</td><td>৳ 420.00</td><td>৳ 420.00</td><td><span class="badge-status green">Paid</span></td><td><button class="icon-btn"><i class="fas fa-print"></i></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer"><span>Showing 1 to 2 of 2 entries</span></div>
+      </div>
+
+      <!-- Purchase Requisition -->
+      <div class="card full-card">
+        <div class="card-header">
+          <h2 class="card-title">Purchase Requisition</h2>
+          <div class="card-actions">
+            <button class="btn-outline">All</button>
+            <button class="btn-outline active-btn">Pending</button>
+            <button class="btn-outline">Approved</button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>From</label>
+            <input type="date" class="filter-input" value="2024-01-01">
+          </div>
+          <div class="filter-group">
+            <label>To</label>
+            <input type="date" class="filter-input" value="2024-12-31">
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Action</th><th>Date</th><th>Ref No</th><th>Product</th><th>Source</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><button class="icon-btn"><i class="fas fa-eye"></i></button></td><td>2024-02-01</td><td>PR-001</td><td>MacBook Pro M3</td><td>Warehouse</td><td><span class="badge-status yellow">Pending</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer"><span>Showing 1 to 1 of 1 entries</span></div>
+      </div>
+
+      <!-- Purchase Order -->
+      <div class="card full-card">
+        <div class="card-header">
+          <h2 class="card-title">Purchase Order</h2>
+          <div class="card-actions">
+            <button class="btn-outline">All</button>
+            <button class="btn-outline active-btn">Pending</button>
+            <button class="btn-outline">Received</button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>From</label>
+            <input type="date" class="filter-input" value="2024-01-01">
+          </div>
+          <div class="filter-group">
+            <label>To</label>
+            <input type="date" class="filter-input" value="2024-12-31">
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Action</th><th>Date</th><th>PO No</th><th>Supplier</th><th>Amount</th><th>Status</th><th>Payment</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><button class="icon-btn"><i class="fas fa-eye"></i></button></td><td>2024-02-10</td><td>PO-0001</td><td>ABC Traders</td><td>৳ 500.00</td><td><span class="badge-status yellow">Pending</span></td><td><span class="badge-status green">Unpaid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer"><span>Showing 1 to 1 of 1 entries</span></div>
+      </div>
+
+      <!-- Pending Adjustments -->
+      <div class="card full-card">
+        <div class="card-header">
+          <h2 class="card-title">Pending Adjustments</h2>
+          <div class="card-actions">
+            <button class="btn-outline">All</button>
+            <button class="btn-outline active-btn">Pending</button>
+            <button class="btn-outline">Approved</button>
+            <button class="btn-outline">Rejected</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Action</th><th>Date</th><th>Adj. No ↕</th><th>Product ↕</th><th>Quantity ↕</th><th>Source ↕</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><button class="icon-btn edit"><i class="fas fa-edit"></i></button><button class="icon-btn delete"><i class="fas fa-trash"></i></button></td><td>2024-03-05</td><td>ADJ-0001</td><td>Samsung Galaxy S24</td><td>-2</td><td>Main Store</td><td><span class="badge-status yellow">Pending</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer"><span>Showing 1 to 1 of 1 entries</span></div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+      <p>© 2024 PosHub. All rights reserved.</p>
+    </footer>
+  </div>
+
+<script src="js/supabase-client.js"></script>
+<script src="app.js"></script>
+<script>
+// ── Auth Guard ────────────────────────────────────────────
+(async () => {
+  const profile = await Auth.requireAuth();
+  if (!profile) return; // redirected to login
+
+  const branch = profile.branch || {};
+  const name   = profile.full_name || 'Admin';
+  const role   = (profile.role || 'user').replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
+  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+  // Topbar
+  document.getElementById('userName').textContent   = name;
+  document.getElementById('userRole').textContent   = role;
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('branchLabel').textContent = branch.name || 'Main Branch';
+  document.getElementById('pageTitle').textContent  = 'Welcome, ' + name.split(' ')[0] + '.';
+})();
+</script>
+</body>
+</html>
